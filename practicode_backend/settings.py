@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +26,7 @@ SECRET_KEY = 'django-insecure-zlhvjjnf=y_p)!xpka4x5xicat38^f7-t1t7myp9-5u_^i@axo
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', os.getenv('PRACTICODE_BACKEND_ENDPOINT', 'practicode-endpoint.local.k8s')]
 
 
 # Application definition
@@ -58,6 +59,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:8080',
     'http://localhost:8000',
     'http://127.0.0.1:8000',
+    os.getenv('PRACTICODE_CLIENT_HOST', 'http://practicode.local.k8s')
 ]
 
 TEMPLATES = [
@@ -85,7 +87,7 @@ WSGI_APPLICATION = 'practicode_backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / 'sqlite/db.sqlite3',
     }
 }
 
