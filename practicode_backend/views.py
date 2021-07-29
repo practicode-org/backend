@@ -9,14 +9,5 @@ def index(request, task_id):
     return HttpResponse(tmpl.render(None, request))
 
 
-def info(request):
-    # For debugging TODO REMOVE
-    server_info = {
-        'HOSTNAME': os.getenv('HOSTNAME'),
-        'PRACTICODE_RUNJAIL_WEBSOCKET': os.getenv('PRACTICODE_RUNJAIL_WEBSOCKET')
-    }
-    return JsonResponse(server_info)
-
-
-def runjail(request):
-    return JsonResponse({'RUNJAIL_WEBSOCKET': os.getenv('PRACTICODE_RUNJAIL_WEBSOCKET')})
+def runner(request):
+    return JsonResponse({'RUNNER_WEBSOCKET_URL': 'ws://' + os.getenv('RUNNER_HOST') + '/run'})
