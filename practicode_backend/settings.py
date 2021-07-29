@@ -26,8 +26,11 @@ SECRET_KEY = 'django-insecure-zlhvjjnf=y_p)!xpka4x5xicat38^f7-t1t7myp9-5u_^i@axo
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', os.getenv('PRACTICODE_BACKEND_ENDPOINT', 'practicode-endpoint.local.k8s')]
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
+backend_host = os.environ.get('BACKEND_HOST')
+if backend_host is not None:
+    ALLOWED_HOSTS.append(backend_host)
 
 # Application definition
 
@@ -59,8 +62,11 @@ CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:8080',
     'http://localhost:8000',
     'http://127.0.0.1:8000',
-    os.getenv('PRACTICODE_CLIENT_HOST', 'http://practicode.local.k8s')
 ]
+
+client_host = os.getenv('CLIENT_HOST')
+if client_host is not None:
+    CORS_ALLOWED_ORIGINS.append('http://' + client_host)
 
 TEMPLATES = [
     {
