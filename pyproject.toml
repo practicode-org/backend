@@ -8,6 +8,7 @@ authors = ["Alexander Garustovich <yukigaru@gmail.com>"]
 python = "^3.9"
 Django = "^3.2.5"
 django-cors-headers = "^3.7.0"
+pybase64 = "^1.1.4"
 
 [tool.poetry.dev-dependencies]
 

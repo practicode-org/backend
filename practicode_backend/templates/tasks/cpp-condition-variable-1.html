@@ -1,3 +1,10 @@
+<!--
+{
+  "title": "C++ Concurrency: condition_variable",
+  "task_template": "cpp-generic",
+  "lang": "cpp",
+}
+-->
 <p>A <code>condition_variable</code> is a thread synchronization primitive used in conjunction with a mutex. Condition variable allows you to wait for a certain condition to become true without wasting CPU cycles in a loop.</p>
 <p>For example, you may want to wait until there's some data in a queue, that is passed from one thread (producer) to another (consumer). On the left there's a bad implementation, which you need to fix with use of condition variable.</p>
 <p>
@@ -7,7 +14,6 @@ Task:
   <li>Add an exit condition. When a producer thread finished its work, wait around 1ms and send exit signal to the consumer thread.</li>
 </ol>
 </p>
-
 <!--
 #include <iostream>
 #include <chrono>
