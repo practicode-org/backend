@@ -9,6 +9,10 @@ python = "^3.9"
 Django = "^3.2.5"
 django-cors-headers = "^3.7.0"
 pybase64 = "^1.1.4"
+ujson = "^4.0.2"
+asyncio = "^3.4.3"
+uvicorn = "^0.15.0"
+websockets = "^9.1"
 
 [tool.poetry.dev-dependencies]
 
