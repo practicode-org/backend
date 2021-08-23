@@ -116,6 +116,10 @@ class WebSocket:
     def scope(self):
         return self._scope
 
+    @property
+    def connected(self):
+        return self._app_state == State.CONNECTED
+
     async def accept(self, subprotocol: str = None):
         """Accept connection.
         :param subprotocol: The subprotocol the server wishes to accept.

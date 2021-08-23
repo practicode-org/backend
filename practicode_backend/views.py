@@ -55,5 +55,5 @@ def get_task(request, task_id):
 
 def runner(request):
     return JsonResponse({
-        'RUNNER_WEBSOCKET_URL': 'ws://' + os.getenv('RUNNER_HOST') + '/run',
+        'RUNNER_WEBSOCKET_URL': 'ws://' + os.getenv('RUNNER_HOST', 'localhost:8000') + '/run',
     })
