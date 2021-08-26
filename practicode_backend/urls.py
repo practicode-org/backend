@@ -16,9 +16,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from . import views
+from . import handle_bridge
+from . import handle_run
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin', admin.site.urls),
     path('tasks/<str:task_id>', views.get_task, name='get_task'),
     path('runner', views.runner, name='runner'),
+
+    path('bridge', handle_bridge.handle, name='bridge'),
+    path('run', handle_run.handle, name='run'),
 ]
