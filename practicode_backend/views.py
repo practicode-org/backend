@@ -31,17 +31,17 @@ def parse_task(tmpl: Template) -> Tuple[str, str, str, str, str]: # returns [tit
         code = code[:len(code)-len("-->")].strip("\n")
 
     text = full_text[:i2-1]
-    return params["title"], text, params["task_template"], params["lang"], code
+    return params["title"], text, params["build_env"], params["lang"], code
 
 
 def get_task(request, task_id):
     tmpl = loader.get_template('tasks/' + task_id + '.html')
 
-    title, text, task_template, lang, source_code = parse_task(tmpl)
+    title, text, build_env, lang, source_code = parse_task(tmpl)
     resp = {
         "title": title,
         "text": base64.b64encode(text.encode('utf-8')).decode('ascii'),
-        "task_template": task_template,
+        "build_env": build_env,
         "lang": lang,
         "code": [
             {

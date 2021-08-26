@@ -17,19 +17,10 @@ def wait_time_for(queue_size: int) -> float:
     return 0.15
 
 
-async def send_no_build_env_error(ws: websocket.WebSocket):
+async def send_missing_query_parameter_error(param_name: str, ws: websocket.WebSocket):
     msg = {
         'error': '1', # TODO: describe errors enum
-        'description': 'No build_env query param set',
-        'stage': 'backend',
-    }
-    await ws.send_json(msg)
-
-
-async def send_no_request_id_error(ws: websocket.WebSocket):
-    msg = {
-        'error': '1', # TODO: describe errors enum
-        'description': 'No X-Request-ID header set',
+        'description': f'No {param_name} query parameter set',
         'stage': 'backend',
     }
     await ws.send_json(msg)
@@ -54,15 +45,15 @@ async def send_worker_disconnected_error(ws: websocket.WebSocket):
 
 
 async def wait_in_queue(request_id: str, build_env: str, ws: websocket.WebSocket):
-    last_feedback_time = time.time()
+    last_feedback_time = time.time() - 10.1
     # wait in a queue and periodically send a position in the queue to the client
     while True:
         q = workers.manager().queue_number(request_id, build_env)
         if q > 0:
             t = time.time()
-            if t - last_feedback_time > 1.0:
+            if t - last_feedback_time > 2.0:
                 print(f'/run: request {request_id} is number {q} in a queue')
-                await ws.send_json({'queue': q + 1}) # send position to the client
+                await ws.send_json({'queue': q + 1}) # send queue position to the client
                 last_feedback_time = t
             await asyncio.sleep(wait_time_for(q + 1))
         else:
@@ -73,7 +64,7 @@ async def wait_in_queue(request_id: str, build_env: str, ws: websocket.WebSocket
         bridge = workers.manager().make_bridge(request_id, build_env)
         if bridge is None: # can't make a bridge, every worker is busy
             t = time.time()
-            if t - last_feedback_time > 1.0:
+            if t - last_feedback_time > 2.0:
                 print(f"/run: request {request_id} is number 1 in a queue")
                 await ws.send_json({'queue': 1})
                 last_feedback_time = t
@@ -100,15 +91,23 @@ async def receive_from_client_loop(request_id: str, bridge: workers.Bridge, ws: 
 async def handle(ws: websocket.WebSocket):
     await ws.accept()
 
+    task_id = ws.query_params.get('task_id', '')
+    if task_id == '':
+        return await send_missing_query_parameter_error('task_id', ws)
+
+    target = ws.query_params.get('target', '')
+    if target == '':
+        return await send_missing_query_parameter_error('target', ws)
+
     build_env = ws.query_params.get('build_env', '')
     if build_env == '':
-        return await send_no_build_env_error(ws)
+        return await send_missing_query_parameter_error('build_env', ws)
 
-    request_id = ws.query_params.get('request_id', '') #ws.headers["X-Request-ID"]
+    request_id = ws.query_params.get('request_id', '')
     if request_id == '':
-        return await send_no_request_id_error(ws)
+        return await send_missing_query_parameter_error('request_id', ws)
 
-    print(f'/run: accepted a connection with a request {request_id}, wanted build_env: {build_env}')
+    print(f'/run: accepted a connection with a request {request_id}, task_id: {task_id}, build_env: {build_env}, target: {target}')
 
     workers.manager().put_in_queue(request_id, build_env)
 
@@ -127,7 +126,8 @@ async def handle(ws: websocket.WebSocket):
         # the initial message must be {"command": "new", "request_id": "..."}
         bridge.send_to_worker({
             'command': 'new',
-            'request_id': request_id
+            'request_id': request_id,
+            'target': target
         })
 
         # messages from the worker
