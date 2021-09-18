@@ -1,0 +1,19 @@
+{
+  "init_test_cases": [
+    {
+        "description": "Test case #1",
+        "checks": [
+          {"type": "text_contains", "arg": "condition_variable"},
+          {"type": "text_excludes", "arg": "mutex"}
+        ]
+    }
+  ],
+  "test_cases": [
+    {
+        "description": "Test case #2",
+        "checks": [
+          {"type": "exit_code", "arg": "0"}
+        ]
+    }
+  ]
+}

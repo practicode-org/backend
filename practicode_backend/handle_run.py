@@ -1,5 +1,6 @@
 from . import workers
 from . import websocket
+from . import test_cases
 import ujson as json
 import asyncio
 import time
@@ -19,7 +20,6 @@ def wait_time_for(queue_size: int) -> float:
 
 async def send_missing_query_parameter_error(param_name: str, ws: websocket.WebSocket):
     msg = {
-        'error': '1', # TODO: describe errors enum
         'description': f'No {param_name} query parameter set',
         'stage': 'backend',
     }
@@ -28,7 +28,6 @@ async def send_missing_query_parameter_error(param_name: str, ws: websocket.WebS
 
 async def send_cant_build_bridge_error(build_env: str, ws: websocket.WebSocket):
     msg = {
-        'error': '1', # TODO: describe errors enum
         'description': f'Failed to build a bridge, no workers with build_env: {build_env} found',
         'stage': 'backend',
     }
@@ -37,7 +36,6 @@ async def send_cant_build_bridge_error(build_env: str, ws: websocket.WebSocket):
 
 async def send_worker_disconnected_error(ws: websocket.WebSocket):
     msg = {
-        'error': '1', # TODO: describe errors enum
         'description': 'Worker has disconnected, please, try again',
         'stage': 'backend',
     }
@@ -84,8 +82,15 @@ async def receive_from_client_loop(request_id: str, bridge: workers.Bridge, ws: 
         msg_json = json.loads(msg) # TODO: delete because it's wasty
         request_id = msg_json['request_id']
 
-        print(f'/run: sending message from request {request_id} to worker {bridge.worker.worker_id}')
+        print(f'/run: sending message from request {request_id} to worker {bridge.worker.worker_id}: {msg[:38]}')
         bridge.send_to_worker(msg)
+
+
+async def send_test_cases(bridge: workers.Bridge, request_id: str, task_id: str):
+    print(f'/run: sending test suite')
+    test_cases_json = json.loads(test_cases.load_for(task_id))
+    test_cases_json['request_id'] = request_id
+    bridge.send_to_worker(test_cases_json)
 
 
 async def handle(ws: websocket.WebSocket):
@@ -130,6 +135,10 @@ async def handle(ws: websocket.WebSocket):
             'target': target
         })
 
+        # send test cases if needed
+        if 'tests' in target:
+            await send_test_cases(bridge, request_id, task_id)
+
         # messages from the worker
         while True:
             msg: str = await bridge.receive_from_worker()
@@ -137,7 +146,7 @@ async def handle(ws: websocket.WebSocket):
             msg_request_id = msg_json["request_id"]
             assert msg_request_id == request_id
 
-            print(f'/run: received message from worker {worker_id} to request {request_id}')
+            print(f'/run: received message from worker {worker_id} to request {request_id}: {msg[:38]}')
 
             await ws.send_text(msg)
 
