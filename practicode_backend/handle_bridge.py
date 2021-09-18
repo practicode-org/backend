@@ -11,7 +11,7 @@ async def receive_from_client_loop(worker_id: str, ws: websocket.WebSocket):
             msg_json = json.loads(msg) # TODO: delete or do only that in DEBUG
             request_id = msg_json["request_id"]
 
-            print(f'/bridge: sending message from request {request_id} to worker {worker_id}')
+            print(f'/bridge: sending message from request {request_id} to worker {worker_id}: {msg[:48]}')
             await ws.send_text(msg)
 
     except asyncio.CancelledError:
@@ -40,7 +40,7 @@ async def handle(ws: websocket.WebSocket):
             msg_json = json.loads(msg)
             request_id = msg_json["request_id"]
 
-            print(f"/bridge: received message from worker {worker_id} to request {request_id}: {msg[:24]}")
+            print(f"/bridge: received message from worker {worker_id} to request {request_id}: {msg[:48]}")
 
             workers.manager().send_to_client(request_id, worker_id, msg)
 

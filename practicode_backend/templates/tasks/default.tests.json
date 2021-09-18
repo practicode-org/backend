@@ -1,0 +1,9 @@
+{"test_cases": [
+{
+    "description": "Test run",
+    "checks": [
+      {"type": "exit_code", "arg": "0"}
+    ]
+}
+]
+}
